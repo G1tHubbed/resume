@@ -300,17 +300,19 @@
     animation: pulse 2s ease-in-out infinite;
   }
 
-  /* Mobile scroll — fills space between topbar and tab bar */
+  /* Mobile scroll — height set dynamically by JS for Safari */
   .m-scroll {
     display: none;
-    overflow-y: auto;
+    overflow-y: scroll;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
+    /* fallback height — JS overrides this */
+    height: calc(100vh - 56px - 64px);
   }
 
   .m-scroll::-webkit-scrollbar { display: none; }
-  .m-content { padding: 14px 14px 24px; }
+  .m-content { padding: 14px 14px 40px; }
 
   /* Tab bar fixed to bottom */
   .m-tabbar {
@@ -669,17 +671,9 @@
     .m-scroll  { display: block; }
     .m-tabbar  { display: block; }
 
-    /* Safari-safe scroll height */
-    .m-scroll {
-      height: calc(100vh - var(--mobile-topbar-h) - var(--tabbar-h));
-      overflow-y: scroll;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
-      padding-bottom: 0;
-    }
-    /* Extra bottom padding on content so last item clears tab bar */
+    /* Height controlled by JS setMobileHeight() — no CSS calc needed */
     .m-content {
-      padding-bottom: 80px;
+      padding-bottom: 40px;
     }
 
     /* 2x2 KPI grid */
@@ -1184,7 +1178,10 @@ function switchTab(id, el) {
   const ds = document.querySelector('.d-scroll');
   const ms = document.querySelector('.m-scroll');
   if (ds) ds.scrollTop = 0;
-  if (ms) ms.scrollTop = 0;
+  if (ms) {
+    ms.scrollTop = 0;
+    setMobileHeight(); // re-measure in case layout shifted
+  }
 
   // Run KPI counters on overview
   if (id === 'overview') setTimeout(runCounters, 50);
@@ -1208,6 +1205,34 @@ function runCounters() {
 }
 
 setTimeout(runCounters, 100);
+
+// ── MOBILE HEIGHT FIX (Safari-proof) ────────────────────────────────
+// Measures actual visible space and sets scroll container height directly.
+// This avoids 100vh Safari bug where browser chrome is included in vh units.
+function setMobileHeight() {
+  const mScroll = document.querySelector('.m-scroll');
+  const mTopbar = document.querySelector('.m-topbar');
+  const mTabbar = document.querySelector('.m-tabbar');
+  if (!mScroll || !mTopbar || !mTabbar) return;
+
+  // Only apply on mobile
+  if (window.innerWidth > 768) return;
+
+  const topH   = mTopbar.getBoundingClientRect().height;
+  const tabH   = mTabbar.getBoundingClientRect().height;
+  const totalH = window.innerHeight; // actual visible window height in Safari
+  const available = totalH - topH - tabH;
+
+  mScroll.style.height = available + 'px';
+  mScroll.style.maxHeight = available + 'px';
+}
+
+// Run on load and on every resize/orientation change
+setMobileHeight();
+window.addEventListener('resize', setMobileHeight);
+window.addEventListener('orientationchange', function() {
+  setTimeout(setMobileHeight, 150); // slight delay for Safari orientation settle
+});
 
 // ── PARTICLE SYSTEM ──────────────────────────────────────────────────
 const canvas = document.getElementById('particles');
