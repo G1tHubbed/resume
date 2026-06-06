@@ -29,7 +29,10 @@
 
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-  html, body { height: 100%; }
+  html {
+    height: 100%;
+    height: -webkit-fill-available;
+  }
 
   body {
     background: var(--navy);
@@ -38,6 +41,8 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
   }
 
   /* ── PARTICLES ──────────────────────────────────────────────── */
@@ -298,10 +303,10 @@
   /* Mobile scroll — fills space between topbar and tab bar */
   .m-scroll {
     display: none;
-    flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 
   .m-scroll::-webkit-scrollbar { display: none; }
@@ -523,37 +528,43 @@
     letter-spacing: 0.07em; text-transform: uppercase;
   }
 
-  /* Jobs */
+  /* Jobs — title, date, company always stacked for clean reading */
   .job { margin-bottom: 18px; }
   .job:last-child { margin-bottom: 0; }
 
-  .job-top {
-    display: flex; justify-content: space-between; align-items: flex-start;
-    margin-bottom: 2px; gap: 8px;
+  .job-title {
+    font-size: 14px; font-weight: 700; color: var(--text-1);
+    margin-bottom: 2px; line-height: 1.3;
   }
-
-  .job-title { font-size: 14px; font-weight: 600; color: var(--text-1); }
 
   .job-date {
     font-size: 11px; color: var(--text-3);
     font-family: 'JetBrains Mono', monospace;
-    white-space: nowrap; flex-shrink: 0;
+    margin-bottom: 4px; display: block;
   }
 
-  .job-co { font-size: 12px; color: var(--blue); font-weight: 600; margin-bottom: 8px; }
+  .job-co {
+    font-size: 12px; color: var(--blue); font-weight: 600;
+    margin-bottom: 10px; line-height: 1.4;
+  }
 
-  .job-buls { display: flex; flex-direction: column; gap: 5px; }
+  .job-buls { display: flex; flex-direction: column; gap: 10px; }
 
   .job-bul {
     font-size: 13px; color: var(--text-2);
-    display: flex; gap: 8px; line-height: 1.5;
+    display: flex; gap: 9px; line-height: 1.65;
   }
 
-  .job-bul::before { content:'›'; color:var(--blue); font-weight:700; flex-shrink:0; }
+  .job-bul::before {
+    content: '›';
+    color: var(--blue); font-weight: 700;
+    flex-shrink: 0; margin-top: 1px;
+    font-size: 15px;
+  }
 
   .job-rule { border:none; border-top:1px solid var(--border); margin:16px 0; }
 
-  .hl { color: var(--blue); font-weight: 600; }
+  .hl { color: #64d8ff; font-weight: 700; }
 
   /* Skills */
   .skill-grp { margin-bottom: 16px; }
@@ -654,9 +665,17 @@
     .m-scroll  { display: block; }
     .m-tabbar  { display: block; }
 
-    /* Mobile content height = 100vh minus topbar and tabbar */
+    /* Safari-safe scroll height */
     .m-scroll {
       height: calc(100vh - var(--mobile-topbar-h) - var(--tabbar-h));
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding-bottom: 0;
+    }
+    /* Extra bottom padding on content so last item clears tab bar */
+    .m-content {
+      padding-bottom: 80px;
     }
 
     /* 2x2 KPI grid */
@@ -671,9 +690,10 @@
     /* Card padding tighter */
     .s-card { padding: 16px; }
 
-    /* Job header: title + date stacked on narrow screens */
-    .job-top { flex-wrap: wrap; }
-    .job-date { width: 100%; }
+    /* Job sizes on mobile */
+    .job-title { font-size: 13px; }
+    .job-co    { font-size: 11px; }
+    .job-bul   { font-size: 12px; }
 
     /* Project code bg hide */
     .proj-code-bg { display: none; }
@@ -892,61 +912,53 @@ experience: `
   </div>
 
   <div class="job">
-    <div class="job-top">
-      <div class="job-title">Warehouse Assistant</div>
-      <div class="job-date">May 2023 – Present</div>
-    </div>
+    <div class="job-title">Warehouse Assistant</div>
+    <div class="job-date">May 2023 – Present</div>
     <div class="job-co">Innovative Financial Technologies (Amarillo Wireless) — Amarillo, TX</div>
     <div class="job-buls">
-      <div class="job-bul">Engineered a <span class="hl">730%+ improvement</span> in item-to-technician workflow efficiency using Lean Six Sigma — reducing turnaround from 2–4 hours to 15–45 minutes</div>
-      <div class="job-bul">Oversaw inventory accuracy for <span class="hl">$500K–$1M</span> in assets across 100–1,000+ SKUs supporting 5–10 field technicians</div>
-      <div class="job-bul">Built custom tracking system (Excel → AppSheet → Google AI) achieving <span class="hl">30–50% reduction</span> in data entry time — adopted by 15–30 team members</div>
-      <div class="job-bul">Reduced inventory discrepancies to <span class="hl">near-zero</span> through root cause analysis and standardized data inputs</div>
-      <div class="job-bul">Eliminated <span class="hl">99%+ of consumable stockouts</span> via real-time inventory system and proactive replenishment</div>
-      <div class="job-bul">Contributed to company-wide WMS implementation improving reporting reliability across 5–30 users</div>
+      <div class="job-bul">Applied Lean Six Sigma principles to engineer a <span class="hl">730%+ improvement</span> in item-to-technician workflow efficiency, cutting turnaround time from 2–4 hours down to just 15–45 minutes depending on daily volume.</div>
+      <div class="job-bul">Managed inventory accuracy and loss prevention for <span class="hl">$500K–$1M in assets</span> across 100–1,000+ SKUs, directly supporting a team of 5–10 field technicians with reliable, real-time stock availability.</div>
+      <div class="job-bul">Designed and built a custom inventory tracking system — evolving it from Excel through AppSheet to Google AI App Creator — achieving a <span class="hl">30–50% reduction in lookup and data entry time</span>, with adoption by 15–30 team members.</div>
+      <div class="job-bul">Drove inventory discrepancies from a daily occurrence down to <span class="hl">near-zero</span> by conducting root cause analysis and standardizing data input processes across the team.</div>
+      <div class="job-bul">Eliminated <span class="hl">99%+ of consumable stockouts</span> by building a proactive replenishment system driven by real-time inventory data and consumption trends.</div>
+      <div class="job-bul">Contributed to a company-wide WMS rollout that improved reporting reliability and operational visibility across a team of 5–30 users.</div>
     </div>
   </div>
 
   <hr class="job-rule">
 
   <div class="job">
-    <div class="job-top">
-      <div class="job-title">Inventory Clerk</div>
-      <div class="job-date">Oct 2020 – May 2023</div>
-    </div>
+    <div class="job-title">Inventory Clerk</div>
+    <div class="job-date">Oct 2020 – May 2023</div>
     <div class="job-co">Dyna Ten Corporation — Amarillo, TX</div>
     <div class="job-buls">
-      <div class="job-bul">Reduced item search time from <span class="hl">60+ min → under 5 min</span> by completely redesigning and reorganizing the inventory cage</div>
-      <div class="job-bul">Conducted high-accuracy audits across a <span class="hl">1,000–5,000 item catalog</span> at Bell Helicopter facility — maintained data integrity for operational decisions</div>
-      <div class="job-bul">Recognized by Bell Helicopter's head of quality control for exceptional performance and attention to detail</div>
+      <div class="job-bul">Completely redesigned and reorganized the inventory cage, reducing item search time from <span class="hl">over 60 minutes down to under 5 minutes</span> and turning a previously unmanageable space into an immediately accessible system.</div>
+      <div class="job-bul">Conducted high-accuracy inventory audits across a <span class="hl">1,000–5,000 item catalog</span> at the Bell Helicopter facility, maintaining the data integrity required for critical operational decision-making.</div>
+      <div class="job-bul">Received direct recognition from Bell Helicopter's head of quality control for exceptional performance, attention to detail, and consistent reliability on the job.</div>
     </div>
   </div>
 
   <hr class="job-rule">
 
   <div class="job">
-    <div class="job-top">
-      <div class="job-title">Treatment Plant Operator</div>
-      <div class="job-date">Oct 2019 – Oct 2020</div>
-    </div>
+    <div class="job-title">Treatment Plant Operator</div>
+    <div class="job-date">Oct 2019 – Oct 2020</div>
     <div class="job-co">City of Amarillo — Amarillo, TX</div>
     <div class="job-buls">
-      <div class="job-bul">Earned D Operator License in <span class="hl">record time</span>, surpassing the pace of all previous position holders</div>
-      <div class="job-bul">Monitored and analyzed water quality data (pH, turbidity, chlorine residual) to ensure regulatory compliance</div>
+      <div class="job-bul">Earned the D Operator License in <span class="hl">record time</span>, completing the certification faster than any previous person in the role and demonstrating a strong ability to learn technical systems quickly.</div>
+      <div class="job-bul">Monitored and analyzed daily water quality data — including pH, turbidity, and chlorine residual — to ensure full regulatory compliance and public safety standards were met.</div>
     </div>
   </div>
 
   <hr class="job-rule">
 
   <div class="job">
-    <div class="job-top">
-      <div class="job-title">Order Picker → QC Inspector → Inventory Clerk</div>
-      <div class="job-date">Nov 2016 – Jun 2019</div>
-    </div>
+    <div class="job-title">Order Picker → QC Inspector → Inventory Clerk</div>
+    <div class="job-date">Nov 2016 – Jun 2019</div>
     <div class="job-co">Affiliated Foods Inc. — Amarillo, TX</div>
     <div class="job-buls">
-      <div class="job-bul">Advanced through <span class="hl">3 roles via 2 merit-based promotions</span> in under 3 years — exceeded order fulfillment targets by <span class="hl">15%</span></div>
-      <div class="job-bul">Conducted visual/dimensional inspections, managed incoming shipment verification, and maintained full traceability documentation as QC Inspector</div>
+      <div class="job-bul">Progressed through <span class="hl">three roles in under three years</span> via two merit-based promotions, starting as an Order Picker, advancing to QC Inspector after exceeding fulfillment targets by <span class="hl">15%</span>, and finishing as Inventory Clerk.</div>
+      <div class="job-bul">As QC Inspector, conducted visual and dimensional inspections, verified incoming shipments, and maintained full traceability documentation to support quality control and audit readiness.</div>
     </div>
   </div>
 </div>
